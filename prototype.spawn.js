@@ -45,24 +45,14 @@ function () {
     let name = undefined;
     let memory = {};
 
-    // First check to see if harvesters have all died off;
-    // we'll have to spawn one with less body parts.
-    if (totalNumberOfCreeps['harvester'] == 0) {
-        energy = Game.spawns.Spawn1.room.energyAvailable;
-        numParts = Math.floor(energy / 200);
-        var creepMemory = { role: "harvester" };
-        name = Game.spawns.Spawn1.createCustomCreep([numParts, numParts, numParts], creepMemory);
-    }
-    else {
-        for (let creepType of roles) {
-            if (creepType.minimum > totalNumberOfCreeps[creepType.role]) {
-                if (creepType.customFunction != undefined) {
-                    name = creepType['customFunction'].spawn();
-                }
-                else {
-                    memory['role'] = creepType.role;
-                    name = Game.spawns.Spawn1.createCustomCreep(creepType.numEachPart, memory);
-                }
+    for (let creepType of roles) {
+        if (creepType.minimum > totalNumberOfCreeps[creepType.role]) {
+            if (creepType.customFunction != undefined) {
+                name = creepType['customFunction'].spawn();
+            }
+            else {
+                memory['role'] = creepType.role;
+                name = Game.spawns.Spawn1.createCustomCreep(creepType.numEachPart, memory);
             }
         }
     }
