@@ -3,31 +3,31 @@ var roles = [
         role: "harvester",
         minimum: 2,
         numEachPart: [11,11,11],
-        memory: {}
+        customFunction: require('role.harvester')
     },
     {
         role: "upgrader",
         minimum: 1,
         numEachPart: [11,11,11],
-        memory: {}
+        customFunction: undefined
     },
     {
         role: "builder",
         minimum: 1,
         numEachPart: [11,11,11],
-        memory: {}
+        customFunction: undefined
     },
     {
         role: "fixer",
         minimum: 1,
         numEachPart: [11,11,11],
-        memory: {}
+        customFunction: undefined
     },
     {
         role: "fixer_wall",
         minimum: 1,
         numEachPart: [11,11,11],
-        memory: {}
+        customFunction: undefined
     }
 ];
 
@@ -43,20 +43,28 @@ function () {
     let maxEnergy = room.energyCapacityAvailable
     let spawnMemory = { working: false };
     let name = undefined;
+    let memory = {};
 
-    for (let creepType of roles) {
-        if (creepType.minimum > totalNumberOfCreeps[creepType.role]) {
-            creepType.memory['role'] = creepType.role;
-            name = Game.spawns.Spawn1.createCustomCreep(creepType.numEachPart, creepType.memory);
-        }
-    }
-    // if nothing has been spawned and there are no harvesters
-    // create a failsafe minimal harvester
-    if (name == undefined && totalNumberOfCreeps['harvester'] == 0) {
+    // First check to see if harvesters have all died off;
+    // we'll have to spawn one with less body parts.
+    if (totalNumberOfCreeps['harvester'] == 0) {
         energy = Game.spawns.Spawn1.room.energyAvailable;
-        numParts = math.floor(energy / 200);
-        creepType.memory['role'] = "harvester";
-        Game.spawns.Spawn1.createCustomCreep([numParts, numParts, numParts], {});
+        numParts = Math.floor(energy / 200);
+        var creepMemory = { role: "harvester" };
+        name = Game.spawns.Spawn1.createCustomCreep([numParts, numParts, numParts], creepMemory);
+    }
+    else {
+        for (let creepType of roles) {
+            if (creepType.minimum > totalNumberOfCreeps[creepType.role]) {
+                if (creepType.customFunction != undefined) {
+                    name = creepType['customFunction'].spawn();
+                }
+                else {
+                    memory['role'] = creepType.role;
+                    name = Game.spawns.Spawn1.createCustomCreep(creepType.numEachPart, memory);
+                }
+            }
+        }
     }
 
     if (!(name<0) && name != undefined) {

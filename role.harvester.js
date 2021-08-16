@@ -1,5 +1,4 @@
-module.exports = {
-    run: function(creep) {
+function run(creep) {
         if (creep.memory.working == true && creep.carry.energy == 0) {
             creep.memory.working = false;
         }
@@ -25,4 +24,12 @@ module.exports = {
             creep.getEnergy(false, true);
         }
     }
-};
+
+function spawn() {
+    let energy = Game.spawns.Spawn1.room.energyAvailable;
+    let numParts = Math.floor(energy / 200);
+    let memory = { role: "harvester"}
+    return Game.spawns.Spawn1.createCustomCreep([numParts, numParts, numParts], memory);
+}
+
+module.exports = { run, spawn };
